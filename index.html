@@ -1,0 +1,2260 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Codespace Agent — ایجنت کدنویسی هوشمند</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <!-- ===== کتابخانه‌ها با SRI ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js" integrity="sha384-6s0HA9p7lWX3sC1TpN8l0iU/DQzr4UoqkDQ7w+C9DgLcJ5BTUeJvZf/h5v9iJjq5" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.9/dist/purify.min.js" integrity="sha384-RqKz5qNJdWGyrdXqFvEayB+UQbPU2tFp3QkH6WXqfXl+1FhQ4Bf6DnJ0mJb3kSU" crossorigin="anonymous">
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" integrity="sha384-4G/1uXjMh3a1PxIh+lMq7XJn3wP8sI/m65G2wHk0J5GS+9E3vLHWj86iM3M1Iiw+" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" integrity="sha384-Fu/0D6DWEajQcVdv2pWQ85FHLExX0W2ZwYQY3YfP3bZ9eJ5HYbd8hF/6eP1L8O1" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markup.min.js" integrity="sha384-5PxgMD+s/LewR1BYrDcN5Eo6KX7FNYb0oTg9+bAifU3Ipx/QBKDxh7BGVXr/YdG" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-clike.min.js" integrity="sha384-0C7L1LcV9KcQj6FcFcJ0dPcP/0pN0gvI6xXX1Fw1cFz1n2IuIYf4I5n3G5g4LdP" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js" integrity="sha384-8T4IDnPW3RCn/dr5nW8cFv4R8HMDtIhYtS4O2H51lF0jfD2l+XgCx6ZxG9KZAN1" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-css.min.js" integrity="sha384-1QyDyI+7x1jKJPdNl1YgtQKdZ4s5+yYg0Z+mWAP7evYK9ZY2F/tPjHgh8yIRqQ5Y" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js" integrity="sha384-2ZanT0o89Z+zfXm5cSsUFWjHwvUM5dC4GZhn3DpssvQn8+7BdPjQ0beX8YcmUcI" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js" integrity="sha384-5Rj5nK4Pj+Ww/cO+DHVc/1p1ehC08PMWPLt4aGdNn8dFQ2MwnEdo4g4JfxyYhyz" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markdown.min.js" integrity="sha384-58PJ5Q3HOrR+X0mH0JmIN4A8MZ2JbQwP+KnP2MxG2xJQm7xQZ/D9OBNd6lYrJ4a" crossorigin="anonymous">
+    </script>
+
+    <style>
+        /* ===== CSS Variables ===== */
+        :root {
+            --bg: #0b0d14;
+            --bg-1: #11142099;
+            --bg-2: #161a2b;
+            --bg-3: #1d2236;
+            --panel: #0f1220;
+            --border: #262c43;
+            --border-2: #333b57;
+            --text: #e7eaf3;
+            --muted: #8b93ad;
+            --muted-2: #646c87;
+            --accent: #7c5cff;
+            --accent-2: #22d3ee;
+            --accent-3: #f472b6;
+            --green: #34d399;
+            --red: #f87171;
+            --amber: #fbbf24;
+            --grad: linear-gradient(135deg, #7c5cff 0%, #22d3ee 100%);
+            --shadow: 0 10px 40px -10px rgba(0, 0, 0, .6);
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: "Vazirmatn", "Segoe UI", system-ui, -apple-system, sans-serif;
+            background: radial-gradient(1200px 600px at 80% -10%, rgba(124, 92, 255, .12), transparent 60%),
+                radial-gradient(900px 500px at 0% 110%, rgba(34, 211, 238, .10), transparent 60%),
+                var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        /* ===== Scrollbar ===== */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a3048;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3a4263;
+        }
+
+        button,
+        input,
+        textarea,
+        select {
+            font-family: inherit;
+        }
+        button {
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: inherit;
+        }
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .grad-text {
+            background: var(--grad);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* ===== Topbar ===== */
+        .topbar {
+            height: 54px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0 14px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(11, 13, 20, .7);
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 30;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 16px;
+        }
+        .brand .logo {
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            background: var(--grad);
+            display: grid;
+            place-items: center;
+            box-shadow: 0 6px 18px -4px rgba(124, 92, 255, .6);
+            color: #0b0d14;
+            font-weight: 900;
+        }
+        .brand small {
+            display: block;
+            font-weight: 500;
+            color: var(--muted);
+            font-size: 10px;
+            margin-top: -2px;
+        }
+        .top-spacer {
+            flex: 1;
+        }
+        .seg {
+            display: flex;
+            align-items: center;
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 3px;
+            gap: 2px;
+        }
+        .seg select,
+        .seg .pick {
+            background: transparent;
+            color: var(--text);
+            border: none;
+            outline: none;
+            font-size: 13px;
+            padding: 6px 10px;
+            border-radius: 7px;
+        }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 11px;
+            border-radius: 9px;
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text);
+            transition: .15s;
+        }
+        .pill:hover {
+            border-color: var(--border-2);
+            background: var(--bg-3);
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--muted-2);
+        }
+        .dot.ok {
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+        }
+        .dot.err {
+            background: var(--red);
+            box-shadow: 0 0 8px var(--red);
+        }
+        .dot.warn {
+            background: var(--amber);
+            box-shadow: 0 0 8px var(--amber);
+        }
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            color: var(--muted);
+            border: 1px solid transparent;
+            transition: .15s;
+        }
+        .icon-btn:hover {
+            background: var(--bg-2);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        /* ===== Layout ===== */
+        .stage {
+            display: grid;
+            grid-template-columns: 240px 1fr 400px;
+            height: calc(100% - 54px);
+        }
+        .pane {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 0;
+        }
+        .pane-head {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            font-weight: 700;
+            flex: 0 0 auto;
+        }
+        .pane-head .ttl {
+            flex: 1;
+        }
+
+        /* ===== Files ===== */
+        .files {
+            flex: 1;
+            overflow: auto;
+            padding: 6px;
+        }
+        .ft-actions {
+            display: flex;
+            gap: 2px;
+        }
+        .fitem {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #cdd2e3;
+            position: relative;
+            white-space: nowrap;
+        }
+        .fitem:hover {
+            background: var(--bg-2);
+        }
+        .fitem.active {
+            background: rgba(124, 92, 255, .16);
+            color: #fff;
+        }
+        .fitem.active::before {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 6px;
+            bottom: 6px;
+            width: 3px;
+            border-radius: 3px;
+            background: var(--accent);
+        }
+        .fitem .ic {
+            width: 16px;
+            height: 16px;
+            flex: 0 0 auto;
+            opacity: .9;
+        }
+        .fitem .nm {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .fitem .x {
+            opacity: 0;
+            margin-right: auto;
+            color: var(--muted);
+            font-size: 14px;
+            padding: 0 4px;
+        }
+        .fitem:hover .x {
+            opacity: 1;
+        }
+        .fitem .x:hover {
+            color: var(--red);
+        }
+        .empty-hint {
+            padding: 14px;
+            color: var(--muted-2);
+            font-size: 12px;
+            line-height: 1.7;
+            text-align: center;
+        }
+
+        /* ===== Tabs & Editor ===== */
+        .tabs {
+            display: flex;
+            overflow: auto;
+            border-bottom: 1px solid var(--border);
+            background: var(--panel);
+            flex: 0 0 auto;
+        }
+        .tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 14px;
+            font-size: 13px;
+            border-left: 1px solid var(--border);
+            color: var(--muted);
+            cursor: pointer;
+            white-space: nowrap;
+            position: relative;
+        }
+        .tab:hover {
+            background: var(--bg-2);
+            color: var(--text);
+        }
+        .tab.active {
+            color: #fff;
+            background: var(--bg-2);
+        }
+        .tab.active::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 2px;
+            background: var(--accent);
+        }
+        .tab .x {
+            opacity: .5;
+            font-size: 15px;
+            line-height: 1;
+        }
+        .tab:hover .x {
+            opacity: 1;
+        }
+        .editor-wrap {
+            flex: 1;
+            position: relative;
+            min-height: 0;
+            background: #0b0d14;
+        }
+        .code-area {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            overflow: hidden;
+            direction: ltr;
+        }
+        .ln-gutter {
+            flex: 0 0 auto;
+            width: 44px;
+            overflow: hidden;
+            background: #0b0d14;
+            border-right: 1px solid var(--border);
+            font-family: "JetBrains Mono", ui-monospace, Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #3a4263;
+            text-align: right;
+            padding: 14px 8px 14px 0;
+            user-select: none;
+            white-space: pre;
+        }
+        .code-scroll {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        .code-area pre.hl,
+        .code-area textarea.code-ta {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            border: 0;
+            padding: 14px 16px;
+            font-family: "JetBrains Mono", ui-monospace, Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            tab-size: 2;
+            -moz-tab-size: 2;
+            white-space: pre;
+            word-wrap: normal;
+            overflow: auto;
+        }
+        .code-area pre.hl {
+            background: transparent;
+            color: #e7eaf3;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .code-area pre.hl code {
+            background: none !important;
+            padding: 0 !important;
+            text-shadow: none !important;
+            font-size: 14px;
+            line-height: 1.6;
+            font-family: inherit;
+            display: block;
+        }
+        .code-area textarea.code-ta {
+            background: transparent;
+            color: transparent;
+            caret-color: #e7eaf3;
+            resize: none;
+            outline: none;
+            z-index: 2;
+        }
+        .code-area textarea.code-ta::selection {
+            background: rgba(124, 92, 255, .35);
+        }
+        .editor-bar {
+            height: 38px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 10px;
+            border-top: 1px solid var(--border);
+            background: var(--panel);
+            flex: 0 0 auto;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 12px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: var(--bg-2);
+            color: var(--text);
+            transition: .15s;
+        }
+        .btn:hover {
+            border-color: var(--border-2);
+            background: var(--bg-3);
+        }
+        .btn.primary {
+            background: var(--grad);
+            border: none;
+            color: #0b0d14;
+            font-weight: 800;
+        }
+        .btn.primary:hover {
+            filter: brightness(1.08);
+        }
+        .btn.ghost {
+            background: transparent;
+        }
+        .btn:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 7px;
+        }
+        .btn.success {
+            border-color: var(--green);
+            color: var(--green);
+        }
+        .btn.success:hover {
+            background: rgba(52, 211, 153, .12);
+        }
+
+        /* ===== Agent ===== */
+        .agent {
+            border-right: 1px solid var(--border);
+            background: linear-gradient(180deg, var(--panel), #0b0d14);
+        }
+        .messages {
+            flex: 1;
+            overflow: auto;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .msg {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-width: 100%;
+        }
+        .msg .who {
+            font-size: 11px;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+        }
+        .msg .bubble {
+            font-size: 13.5px;
+            line-height: 1.75;
+            color: #dde1ee;
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 11px 14px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        .msg.user .bubble {
+            background: rgba(124, 92, 255, .12);
+            border-color: rgba(124, 92, 255, .4);
+        }
+        .msg.assistant .bubble {
+            background: var(--bg-2);
+        }
+        .msg.error .bubble {
+            background: rgba(248, 113, 113, .10);
+            border-color: rgba(248, 113, 113, .4);
+            color: var(--red);
+        }
+        .bubble p {
+            margin: 0 0 9px;
+        }
+        .bubble p:last-child {
+            margin-bottom: 0;
+        }
+        .bubble ul,
+        .bubble ol {
+            margin: 6px 0 9px;
+            padding-right: 20px;
+        }
+        .bubble li {
+            margin: 3px 0;
+        }
+        .bubble code {
+            font-family: "JetBrains Mono", ui-monospace, Consolas, monospace;
+            background: #0b0d14;
+            padding: 1px 5px;
+            border-radius: 5px;
+            font-size: 12.5px;
+            border: 1px solid var(--border);
+        }
+        .bubble pre {
+            background: #0b0d14;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 11px;
+            overflow: auto;
+            margin: 8px 0;
+            direction: ltr;
+            text-align: left;
+        }
+        .bubble pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 12.5px;
+        }
+        .file-card {
+            margin: 8px 0;
+            border: 1px solid rgba(52, 211, 153, .4);
+            background: rgba(52, 211, 153, .07);
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            direction: ltr;
+            text-align: left;
+        }
+        .file-card .fc-ic {
+            color: var(--green);
+        }
+        .file-card .fc-nm {
+            flex: 1;
+            font-family: "JetBrains Mono", monospace;
+            font-size: 13px;
+            color: #cdd2e3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .file-card .fc-ok {
+            font-size: 11px;
+            color: var(--green);
+            font-weight: 700;
+        }
+        .typing {
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+        }
+        .typing span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--muted);
+            animation: bnc 1.2s infinite;
+        }
+        .typing span:nth-child(2) {
+            animation-delay: .2s;
+        }
+        .typing span:nth-child(3) {
+            animation-delay: .4s;
+        }
+        @keyframes bnc {
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+                opacity: .5;
+            }
+            30% {
+                transform: translateY(-5px);
+                opacity: 1;
+            }
+        }
+
+        .composer {
+            border-top: 1px solid var(--border);
+            padding: 10px;
+            background: var(--panel);
+            flex: 0 0 auto;
+        }
+        .composer textarea {
+            width: 100%;
+            min-height: 60px;
+            max-height: 160px;
+            resize: none;
+            background: var(--bg-2);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            padding: 11px 13px;
+            font-size: 13.5px;
+            line-height: 1.6;
+            outline: none;
+            transition: .15s;
+        }
+        .composer textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(124, 92, 255, .18);
+        }
+        .composer .ctrls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .composer .ctrls .hint {
+            flex: 1;
+            font-size: 11px;
+            color: var(--muted-2);
+        }
+
+        /* ===== Modal ===== */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 7, 12, .7);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+        }
+        .overlay.show {
+            display: flex;
+        }
+        .modal {
+            width: 560px;
+            max-width: 100%;
+            max-height: 90vh;
+            overflow: auto;
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
+        .modal-head {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-head .ttl {
+            font-weight: 800;
+            font-size: 16px;
+            flex: 1;
+        }
+        .modal-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .field label {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .field input,
+        .field select {
+            width: 100%;
+            background: var(--bg-3);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 13.5px;
+            outline: none;
+            transition: .15s;
+        }
+        .field input:focus,
+        .field select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(124, 92, 255, .18);
+        }
+        .field .row-in {
+            display: flex;
+            gap: 8px;
+        }
+        .field .row-in input {
+            flex: 1;
+        }
+        .providers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            position: relative;
+        }
+        .providers-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .providers-header label {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 600;
+            margin: 0;
+        }
+        .prov-card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            transition: .15s;
+            background: var(--bg-3);
+            position: relative;
+        }
+        .prov-card:hover {
+            border-color: var(--border-2);
+        }
+        .prov-card.sel {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(124, 92, 255, .16);
+        }
+        .prov-card .pn {
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .prov-card .pd {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 4px;
+            line-height: 1.6;
+        }
+        .prov-card .del-prov {
+            position: absolute;
+            top: 6px;
+            left: 8px;
+            color: var(--muted-2);
+            font-size: 16px;
+            cursor: pointer;
+            transition: .15s;
+            z-index: 2;
+            background: var(--bg-3);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: grid;
+            place-items: center;
+        }
+        .prov-card .del-prov:hover {
+            color: var(--red);
+            background: rgba(248, 113, 113, .12);
+        }
+        .linkbtn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12.5px;
+            color: var(--accent-2);
+            padding: 7px 11px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: var(--bg-3);
+            text-decoration: none;
+            transition: .15s;
+        }
+        .linkbtn:hover {
+            border-color: var(--accent-2);
+            background: rgba(34, 211, 238, .08);
+        }
+        .help {
+            font-size: 11.5px;
+            color: var(--muted);
+            line-height: 1.7;
+            background: var(--bg-3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 11px 13px;
+        }
+        .help b {
+            color: var(--text);
+        }
+        .help code {
+            font-family: "JetBrains Mono", monospace;
+            font-size: 11px;
+            background: #0b0d14;
+            padding: 1px 6px;
+            border-radius: 4px;
+            color: var(--accent-2);
+        }
+
+        /* ===== Preview ===== */
+        .prev-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 60;
+            display: none;
+            flex-direction: column;
+            background: rgba(5, 7, 12, .85);
+            backdrop-filter: blur(6px);
+        }
+        .prev-overlay.show {
+            display: flex;
+        }
+        .prev-bar {
+            height: 46px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 14px;
+            background: var(--panel);
+            border-bottom: 1px solid var(--border);
+        }
+        .prev-bar .ttl {
+            font-weight: 700;
+            font-size: 13px;
+            flex: 1;
+            direction: ltr;
+        }
+        .prev-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        .prev-frame {
+            flex: 1;
+            border: none;
+            background: #fff;
+            min-height: 0;
+        }
+        .prev-console {
+            height: 160px;
+            flex: 0 0 auto;
+            background: #0b0d14;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+        .prev-console .ch {
+            height: 30px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 700;
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+        .prev-console .co {
+            flex: 1;
+            overflow: auto;
+            padding: 8px 12px;
+            font-family: "JetBrains Mono", monospace;
+            font-size: 12px;
+            direction: ltr;
+            text-align: left;
+        }
+        .log-line {
+            padding: 2px 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .log-line.log {
+            color: #cdd2e3;
+        }
+        .log-line.err {
+            color: var(--red);
+        }
+        .log-line.warn {
+            color: var(--amber);
+        }
+        .log-line.info {
+            color: var(--accent-2);
+        }
+
+        /* ===== Toast ===== */
+        .toasts {
+            position: fixed;
+            bottom: 18px;
+            left: 18px;
+            z-index: 80;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast {
+            background: var(--bg-3);
+            border: 1px solid var(--border);
+            border-right: 3px solid var(--accent);
+            border-radius: 10px;
+            padding: 11px 15px;
+            font-size: 13px;
+            box-shadow: var(--shadow);
+            max-width: 340px;
+            animation: slidein .25s;
+        }
+        .toast.ok {
+            border-right-color: var(--green);
+        }
+        .toast.err {
+            border-right-color: var(--red);
+        }
+        .toast.warn {
+            border-right-color: var(--amber);
+        }
+        @keyframes slidein {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: none;
+                opacity: 1;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+        @media(max-width:900px) {
+            .stage {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+                height: auto;
+                min-height: calc(100% - 54px);
+            }
+            .files-pane,
+            .agent {
+                height: 280px;
+            }
+            body {
+                overflow: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== TOPBAR ===== -->
+    <header class="topbar">
+        <div class="brand">
+            <div class="logo">{ }</div>
+            <div>Codespace&nbsp;Agent
+                <small>ایجنت کدنویسی هوشمند</small>
+            </div>
+        </div>
+        <div class="top-spacer"></div>
+        <div class="seg">
+            <span class="dot" id="connDot"></span>
+            <select id="modelSelect" class="pick" title="انتخاب مدل"></select>
+        </div>
+        <button class="icon-btn" id="btnFiles" title="نمایش/مخفی فایل‌ها">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        </button>
+        <button class="icon-btn" id="btnAgent" title="نمایش/مخفی ایجنت">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/></svg>
+        </button>
+        <button class="pill" id="btnSettings">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            تنظیمات
+        </button>
+    </header>
+
+    <!-- ===== STAGE ===== -->
+    <div class="stage" id="stage">
+        <!-- Files pane -->
+        <aside class="pane files-pane" id="filesPane">
+            <div class="pane-head">
+                <span class="ttl">فایل‌ها</span>
+                <div class="ft-actions">
+                    <button class="icon-btn" id="btnNewFile" title="فایل جدید" style="width:28px;height:28px">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M12 18v-6M9 15h6"/></svg>
+                    </button>
+                    <button class="icon-btn" id="btnReset" title="بازنشانی پروژه" style="width:28px;height:28px">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="files" id="fileList"></div>
+        </aside>
+
+        <!-- Editor pane -->
+        <main class="pane">
+            <div class="tabs" id="tabs"></div>
+            <div class="editor-wrap" id="editorWrap">
+                <div class="code-area" id="codeArea">
+                    <div class="ln-gutter" id="lnGutter"></div>
+                    <div class="code-scroll" id="codeScroll">
+                        <pre class="hl" aria-hidden="true"><code class="language-plaintext" id="hlCode"></code></pre>
+                        <textarea class="code-ta" id="codeTa" spellcheck="false" wrap="off"></textarea>
+                    </div>
+                </div>
+                <div id="welcome" style="position:absolute;inset:0;display:grid;place-items:center;color:var(--muted-2);text-align:center;padding:30px;z-index:5">
+                    <div>
+                        <div style="font-size:46px;margin-bottom:10px">&lt;/&gt;</div>
+                        <div style="font-size:15px;color:var(--muted);margin-bottom:6px">کداسپیس خالی است</div>
+                        <div style="font-size:12.5px;line-height:1.8">یک فایل بساز یا از ایجنت بخواه<br>برای تو یک پروژه بسازد ✨</div>
+                    </div>
+                </div>
+            </div>
+            <div class="editor-bar">
+                <button class="btn primary" id="btnPreview">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 3l14 9-14 9z"/></svg>
+                    پیش‌نمایش
+                </button>
+                <button class="btn ghost" id="btnRun">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17l6-6-6-6"/><path d="M12 19l8-7-8-7"/></svg>
+                    اجرای JS
+                </button>
+                <button class="btn ghost" id="btnSave">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+                    ذخیره
+                </button>
+                <span id="editorStatus" style="flex:1;font-size:11px;color:var(--muted-2);direction:ltr;text-align:left"></span>
+                <span class="proxy-badge" id="proxyBadge">
+                    <span class="dot warn" id="proxyDot"></span>
+                    <span id="proxyLabel">CORS</span>
+                </span>
+            </div>
+        </main>
+
+        <!-- Agent pane -->
+        <aside class="pane agent" id="agentPane">
+            <div class="pane-head">
+                <span class="ttl">🤖 ایجنت</span>
+                <button class="icon-btn" id="btnClearChat" title="پاک کردن گفتگو" style="width:28px;height:28px">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                </button>
+            </div>
+            <div class="messages" id="messages"></div>
+            <div class="composer">
+                <textarea id="chatInput" placeholder="از ایجنت بخواه کاری انجام دهد... (مثلاً: یک صفحه لندینگ زیبا با HTML بساز)"></textarea>
+                <div class="ctrls">
+                    <span class="hint" id="composerHint">Enter برای ارسال · Shift+Enter خط جدید</span>
+                    <button class="btn primary" id="btnSend">
+                        ارسال
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>
+                    </button>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- ===== SETTINGS MODAL ===== -->
+    <div class="overlay" id="settingsOverlay">
+        <div class="modal">
+            <div class="modal-head">
+                <span class="ttl">⚙️ تنظیمات اتصال</span>
+                <button class="icon-btn" id="closeSettings">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <div class="providers-header">
+                        <label>ارائه‌دهنده (Provider)</label>
+                        <button class="btn btn-sm success" id="btnAddProvider" title="افزودن API جدید">➕ افزودن</button>
+                    </div>
+                    <div class="providers" id="providers"></div>
+                </div>
+
+                <div class="field">
+                    <label>API Key</label>
+                    <div class="row-in">
+                        <input type="password" id="apiKeyInput" placeholder="کلید API خود را وارد کنید" autocomplete="off" />
+                        <a class="linkbtn" id="getKeyLink" target="_blank" rel="noopener" href="#">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3M9 7H6a5 5 0 0 0-5 5 5 5 0 0 0 5 5h3M8 12h8"/></svg>
+                            گرفتن کلید
+                        </a>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Base URL</label>
+                    <div class="row-in">
+                        <input type="text" id="baseUrlInput" placeholder="https://router.bynara.id/v1" dir="ltr" />
+                        <button class="btn" id="btnFetchModels">دریافت مدل‌ها</button>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>مدل (Model)</label>
+                    <select id="modelSelectSettings" class="pick"></select>
+                </div>
+
+                <div class="field">
+                    <label>System Prompt (اختیاری)</label>
+                    <input type="text" id="systemPromptInput" placeholder="مثلاً: یک دستیار حرفه‌ای فرانت‌اند باشید" />
+                </div>
+
+                <div class="field">
+                    <label>حل مشکل CORS</label>
+                    <select id="proxyModeSelect">
+                        <option value="none">بدون پروکسی — اگر از localhost باز می‌کنی (پیشنهادی)</option>
+                        <option value="local">پروکسی محلی localhost:8787 (برای file://)</option>
+                        <option value="allorigins">⚠️ پروکسی عمومی api.allorigins.win (کلید قابل مشاهده)</option>
+                        <option value="corsproxy">⚠️ پروکسی عمومی corsproxy.io (کلید قابل مشاهده)</option>
+                    </select>
+                    <div class="help" style="margin-top:6px" id="proxyHelp">
+                        <b>توصیه:</b> از گزینه‌ی «بدون پروکسی» با مرورگر دارای پروکسی SOCKS5 استفاده کنید. پروکسی‌های عمومی امنیت کلید شما را به خطر می‌اندازند.
+                    </div>
+                </div>
+
+                <div class="help">
+                    <b>راهنمای سریع:</b><br>
+                    • <b>NaraRouter</b>: کلید از <code>router.bynara.id/settings</code>، Base URL: <code>router.bynara.id/v1</code>.<br>
+                    • <b>GLM Babel Town</b>: کلید از <code>glm.babel.town</code>، فقط مدل <code>glm-5.2</code>.<br>
+                    • با دکمه «➕ افزودن» می‌توانید API دلخواه خود را اضافه کنید و با ✕ روی کارت آن را حذف کنید.
+                </div>
+
+                <div class="row" style="justify-content:flex-end;gap:8px">
+                    <button class="btn ghost" id="cancelSettings">انصراف</button>
+                    <button class="btn primary" id="saveSettings">ذخیره و اتصال</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ADD PROVIDER MODAL ===== -->
+    <div class="overlay" id="addProviderOverlay">
+        <div class="modal">
+            <div class="modal-head">
+                <span class="ttl">➕ افزودن API جدید</span>
+                <button class="icon-btn" id="closeAddProvider">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label>نام (Name)</label>
+                    <input type="text" id="newProviderName" placeholder="مثلاً: Parspack AI Studio" />
+                </div>
+                <div class="field">
+                    <label>Base URL</label>
+                    <input type="text" id="newProviderBaseUrl" placeholder="https://my.parspack.com/api/aistudio" dir="ltr" />
+                </div>
+                <div class="field">
+                    <label>کلید API (اختیاری، می‌توانید بعداً در تنظیمات اصلی وارد کنید)</label>
+                    <input type="password" id="newProviderApiKey" placeholder="کلید API (اختیاری)" autocomplete="off" />
+                </div>
+                <div class="field">
+                    <label>مدل‌ها (با کاما جدا کنید)</label>
+                    <input type="text" id="newProviderModels" placeholder="mistral-medium-3-5, glm-5.2" dir="ltr" />
+                </div>
+                <div class="help">
+                    <b>نکته:</b> پس از افزودن، provider جدید در لیست ظاهر می‌شود. برای حذف آن، روی ✕ در گوشه‌ی کارت کلیک کنید.
+                </div>
+                <div class="row" style="justify-content:flex-end;gap:8px">
+                    <button class="btn ghost" id="cancelAddProvider">انصراف</button>
+                    <button class="btn primary" id="saveAddProvider">افزودن</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PREVIEW ===== -->
+    <div class="prev-overlay" id="prevOverlay">
+        <div class="prev-bar">
+            <span class="ttl" id="prevTitle">پیش‌نمایش</span>
+            <button class="btn ghost" id="btnReloadPrev">↻ بازخوانی</button>
+            <button class="btn ghost" id="btnOpenTab">↗ تب جدید</button>
+            <button class="icon-btn" id="closePrev">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="prev-body">
+            <iframe class="prev-frame" id="prevFrame" sandbox="allow-scripts allow-modals"></iframe>
+            <div class="prev-console">
+                <div class="ch">کنسول</div>
+                <div class="co" id="prevConsole"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toasts" id="toasts"></div>
+
+    <script>
+        /* =========================================================
+           Codespace Agent  —  نسخه‌ی اصلاح‌شده (امنیتی و رفع باگ)
+           ========================================================= */
+
+        // ----- Provider presets (بدون کلید هاردکد) -----
+        const PROVIDERS = {
+            nara: {
+                name: 'NaraRouter',
+                icon: '🌐',
+                baseUrl: 'https://router.bynara.id/v1',
+                keyUrl: 'https://router.bynara.id/settings',
+                models: [
+                    'claude-fable-5', 'claude-opus-4.7', 'claude-opus-4.8',
+                    'claude-sonnet-5', 'glm-5.2', 'glm-5.2-plan',
+                    'gpt-5.4', 'gpt-5.5', 'kimi-k2.6', 'kimi-k2.7-code',
+                    'kimi-k2.7-code-free', 'mimo-v2.5', 'mimo-v2.5-hermes',
+                    'mimo-v2.5-pro', 'mimo-v2.5-pro-hermes', 'mimo-v2.5-pro-ultraspeed',
+                    'minimax-m3', 'mistral-large', 'mistral-medium-3-5',
+                    'tencent-hy3', 'deepseek-v4-flash', 'deepseek-v4-pro',
+                    'qwen3.7-max'
+                ],
+                desc: '۲۳ مدل · پلن رایگان'
+            },
+            babel: {
+                name: 'GLM Babel Town',
+                icon: '🆓',
+                baseUrl: 'https://api.babel.town/v1',
+                keyUrl: 'https://glm.babel.town/',
+                models: ['glm-5.2', 'glm-4.6'],
+                desc: 'رایگان · بدون ثبت‌نام · فقط GLM'
+            },
+            custom: {
+                name: 'سفارشی',
+                icon: '🔧',
+                baseUrl: '',
+                keyUrl: '',
+                models: [],
+                desc: 'هر endpoint سازگار با OpenAI'
+            }
+        };
+
+        // ----- Default settings (بدون کلید) -----
+        const DEFAULT_SETTINGS = {
+            provider: 'nara',
+            baseUrl: 'https://router.bynara.id/v1',
+            apiKey: '',
+            model: 'mistral-medium-3-5',
+            systemPrompt: '',
+            proxyMode: 'none'
+        };
+
+        const STORAGE_KEY_CUSTOM_PROVIDERS = 'csa_custom_providers';
+        const MAX_CHAT_HISTORY = 20;
+        const MAX_CONTEXT_MESSAGES = 10;
+
+        // ----- State -----
+        let FS = {};
+        let openTabs = [];
+        let activePath = null;
+        let settings = { ...DEFAULT_SETTINGS };
+        let chatHistory = [];
+        let isStreaming = false;
+        let customProviders = {};
+        let settingsBackup = null;
+
+        // ----- Starter Project -----
+        const STARTER = {
+            'index.html':
+                `<!DOCTYPE html>
+        <html lang="fa" dir="rtl">
+        <head>
+          <meta charset="UTF-8">
+          <title>سلام دنیا</title>
+          <link rel="stylesheet" href="style.css">
+        </head>
+        <body>
+          <div class="card">
+            <h1>👋 سلام!</h1>
+            <p>این یک پروژه نمونه است. از ایجنت بخواه آن را تغییر دهد.</p>
+            <button id="btn">کلیک کن</button>
+          </div>
+          <script src="app.js"><\/script>
+        </body>
+        </html>`,
+            'style.css':
+                `*{box-sizing:border-box}
+        body{margin:0;min-height:100vh;display:grid;place-items:center;
+          font-family:system-ui;background:#0f1220;color:#fff}
+        .card{background:#1d2236;padding:40px;border-radius:18px;text-align:center;
+          box-shadow:0 20px 60px -20px rgba(124,92,255,.5)}
+        h1{margin:0 0 10px}
+        button{margin-top:14px;padding:10px 20px;border:none;border-radius:10px;
+          background:linear-gradient(135deg,#7c5cff,#22d3ee);color:#0b0d14;font-weight:700;cursor:pointer}`,
+            'app.js':
+                `const btn = document.getElementById('btn');
+        let n = 0;
+        btn.addEventListener('click', () => {
+          n++;
+          btn.textContent = ' clicked ' + n + 'x ';
+          console.log('clicked', n);
+        });
+        console.log('app loaded ✅');`
+        };
+
+        // ===== Helpers =====
+        function escapeHtml(s) { return String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' } [
+            c
+        ])); }
+
+        function escapeAttr(s) { return escapeHtml(s).replace(/"/g, '&quot;'); }
+
+        function isFileOrigin() { return location.protocol === 'file:'; }
+
+        function proxied(url) {
+            const mode = settings.proxyMode || 'none';
+            if (mode === 'local') return 'http://127.0.0.1:8787/?url=' + encodeURIComponent(url);
+            if (mode === 'allorigins') return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+            if (mode === 'corsproxy') return 'https://corsproxy.io/?url=' + encodeURIComponent(url);
+            return url;
+        }
+
+        // ===== Sanitize with DOMPurify =====
+        function sanitizeHTML(html) {
+            if (typeof DOMPurify === 'undefined') return html; // fallback
+            return DOMPurify.sanitize(html, {
+                USE_PROFILES: { html: true },
+                ADD_TAGS: ['iframe', 'style'],
+                ADD_ATTR: ['target', 'rel', 'class', 'style', 'id', 'data-*']
+            });
+        }
+
+        // ===== Custom Providers =====
+        function loadCustomProviders() {
+            try { customProviders = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_PROVIDERS)) || {}; } catch (e) {
+                customProviders = {}; }
+        }
+
+        function saveCustomProviders() {
+            localStorage.setItem(STORAGE_KEY_CUSTOM_PROVIDERS, JSON.stringify(customProviders));
+        }
+
+        function getAllProviders() {
+            const result = { ...PROVIDERS };
+            for (const [key, val] of Object.entries(customProviders)) {
+                result[key] = val;
+            }
+            return result;
+        }
+
+        function getProvider(key) { return getAllProviders()[key] || null; }
+
+        function getProviderModels(key) { const p = getProvider(key); return p ? p.models : []; }
+
+        function deleteProvider(key) {
+            if (!customProviders[key]) { toast('این provider قابل حذف نیست (پیش‌فرض)', 'warn'); return; }
+            if (!confirm(`حذف provider "${customProviders[key]?.name || key}"؟`)) return;
+            delete customProviders[key];
+            saveCustomProviders();
+            if (settings.provider === key) {
+                settings.provider = 'nara';
+                const p = getProvider('nara');
+                if (p) {
+                    settings.baseUrl = p.baseUrl || settings.baseUrl;
+                    if (p.models && p.models.length) settings.model = p.models[0] || 'mistral-medium-3-5';
+                }
+            }
+            renderProviders();
+            populateModelSelects(settings.model);
+            renderModelSelect();
+            toast('provider حذف شد', 'ok');
+        }
+
+        // ===== File Icons =====
+        function fileIcon(path) {
+            const ext = path.split('.').pop().toLowerCase();
+            const map = {
+                html: ['#e34c26', '♦'],
+                css: ['#1572b6', '#'],
+                js: ['#f7df1e', 'JS'],
+                json: ['#cbcb41', '{ }'],
+                md: ['#519aba', 'M'],
+                svg: ['#ffb13b', '◬'],
+                txt: ['#8b93ad', '≊'],
+                py: ['#3572A5', 'py'],
+                ts: ['#3178c6', 'TS'],
+                jsx: ['#61dafb', '⚛'],
+                vue: ['#41b883', 'V']
+            };
+            const [color, gl] = map[ext] || ['#8b93ad', '🗎'];
+            return `<span class="ic" style="width:16px;height:16px;display:inline-grid;place-items:center;font-size:9px;font-weight:800;color:${color}">${gl}</span>`;
+        }
+
+        // ===== Persistence =====
+        function load() {
+            loadCustomProviders();
+            try { FS = JSON.parse(localStorage.getItem('csa_files')) || {} } catch (e) { FS = {} }
+            try {
+                const s = JSON.parse(localStorage.getItem('csa_settings'));
+                if (s) settings = { ...DEFAULT_SETTINGS, ...s };
+                if (!['none', 'local', 'allorigins', 'corsproxy'].includes(settings.proxyMode)) settings.proxyMode =
+                    'none';
+                const all = getAllProviders();
+                if (!all[settings.provider]) settings.provider = 'nara';
+                const models = getProviderModels(settings.provider);
+                if (models.length && !models.includes(settings.model)) {
+                    settings.model = models[0] || 'mistral-medium-3-5';
+                }
+            } catch (e) { settings = { ...DEFAULT_SETTINGS }; }
+            try {
+                let hist = JSON.parse(localStorage.getItem('csa_chat')) || [];
+                chatHistory = hist.slice(-MAX_CHAT_HISTORY);
+            } catch (e) { chatHistory = [] }
+            if (Object.keys(FS).length === 0) { FS = { ...STARTER };
+                saveFiles(); }
+        }
+
+        function saveFiles() { localStorage.setItem('csa_files', JSON.stringify(FS)); }
+
+        function saveSettings() { localStorage.setItem('csa_settings', JSON.stringify(settings)); }
+
+        function saveChat() {
+            localStorage.setItem('csa_chat', JSON.stringify(chatHistory.slice(-MAX_CHAT_HISTORY)));
+        }
+
+        // ===== File Tree =====
+        function renderFiles() {
+            const el = document.getElementById('fileList');
+            const paths = Object.keys(FS).sort();
+            if (!paths.length) {
+                el.innerHTML =
+                    `<div class="empty-hint">فایلی وجود ندارد.<br>روی + بزن یا از ایجنت بخواه بسازد.</div>`;
+                return;
+            }
+            el.innerHTML = paths.map(p => `
+                <div class="fitem ${p===activePath?'active':''}" data-path="${escapeAttr(p)}">
+                  ${fileIcon(p)}
+                  <span class="nm" title="${escapeAttr(p)}">${escapeHtml(p)}</span>
+                  <span class="x" data-del="${escapeAttr(p)}" title="حذف">×</span>
+                </div>`).join('');
+            el.querySelectorAll('.fitem').forEach(it => {
+                it.addEventListener('click', e => {
+                    if (e.target.dataset.del !== undefined) { delFile(e.target.dataset.del); return; }
+                    openFile(it.dataset.path);
+                });
+            });
+        }
+
+        function newFile() {
+            const name = prompt('نام فایل جدید:', 'new-file.html');
+            if (!name) return;
+            if (FS[name] !== undefined) { toast('فایل وجود دارد', 'err'); return; }
+            FS[name] = '';
+            saveFiles();
+            renderFiles();
+            openFile(name);
+        }
+
+        function delFile(p) {
+            if (!confirm(`حذف «${p}»؟`)) return;
+            delete FS[p];
+            saveFiles();
+            openTabs = openTabs.filter(t => t !== p);
+            if (activePath === p) activePath = openTabs[0] || null;
+            renderFiles();
+            renderTabs();
+            loadEditor();
+        }
+
+        function resetProject() {
+            if (!confirm('بازنشانی پروژه به حالت نمونه؟ همه فایل‌ها جایگزین می‌شوند.')) return;
+            FS = { ...STARTER };
+            openTabs = ['index.html'];
+            activePath = 'index.html';
+            saveFiles();
+            renderFiles();
+            renderTabs();
+            loadEditor();
+            toast('بازنشانی شد', 'ok');
+        }
+
+        // ===== Tabs =====
+        function renderTabs() {
+            const el = document.getElementById('tabs');
+            el.innerHTML = openTabs.map(p => `
+                <div class="tab ${p===activePath?'active':''}" data-path="${escapeAttr(p)}">
+                  ${fileIcon(p)}
+                  <span>${escapeHtml(p.split('/').pop())}</span>
+                  <span class="x" data-close="${escapeAttr(p)}">×</span>
+                </div>`).join('');
+            el.querySelectorAll('.tab').forEach(t => {
+                t.addEventListener('click', e => {
+                    if (e.target.dataset.close !== undefined) {
+                        openTabs = openTabs.filter(x => x !== e.target.dataset.close);
+                        if (activePath === e.target.dataset.close) activePath = openTabs[openTabs
+                            .length - 1] || null;
+                        renderTabs();
+                        loadEditor();
+                    } else openFile(t.dataset.path);
+                });
+            });
+        }
+
+        function openFile(path) {
+            if (FS[path] === undefined) return;
+            if (!openTabs.includes(path)) openTabs.push(path);
+            activePath = path;
+            renderFiles();
+            renderTabs();
+            loadEditor();
+        }
+
+        // ===== Editor =====
+        const codeTa = document.getElementById('codeTa');
+        const hlCode = document.getElementById('hlCode');
+        const lnGutter = document.getElementById('lnGutter');
+        const codeScroll = document.getElementById('codeScroll');
+        const welcomeEl = document.getElementById('welcome');
+
+        function prismLangClass(ext) {
+            const map = {
+                html: 'markup',
+                htm: 'markup',
+                xml: 'markup',
+                svg: 'markup',
+                vue: 'markup',
+                js: 'javascript',
+                jsx: 'javascript',
+                mjs: 'javascript',
+                ts: 'typescript',
+                css: 'css',
+                scss: 'css',
+                json: 'json',
+                md: 'markdown',
+                py: 'python',
+                sh: 'bash',
+                bash: 'bash'
+            };
+            return map[ext] || 'none';
+        }
+
+        function updateGutter(text) {
+            const lines = text.split('\n').length;
+            let s = '';
+            for (let i = 1; i <= lines; i++) s += i + '\n';
+            lnGutter.textContent = s;
+        }
+
+        function highlight() {
+            const text = codeTa.value;
+            const ext = activePath ? activePath.split('.').pop().toLowerCase() : '';
+            const lang = prismLangClass(ext);
+            if (window.Prism && Prism.languages[lang]) {
+                hlCode.className = 'language-' + lang;
+                hlCode.innerHTML = Prism.highlight(text, Prism.languages[lang], lang);
+            } else {
+                hlCode.className = 'language-none';
+                hlCode.textContent = text;
+            }
+            updateGutter(text);
+        }
+
+        function syncScroll() { lnGutter.scrollTop = codeScroll.scrollTop; }
+
+        function initEditor() {
+            codeTa.addEventListener('keydown', e => {
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    const s = codeTa.selectionStart,
+                        en = codeTa.selectionEnd,
+                        v = codeTa.value;
+                    if (e.shiftKey) {
+                        const lineStart = v.lastIndexOf('\n', s - 1) + 1;
+                        if (v.slice(lineStart, lineStart + 2) === '  ') {
+                            codeTa.value = v.slice(0, lineStart) + v.slice(lineStart + 2);
+                            codeTa.selectionStart = codeTa.selectionEnd = s - 2 >= lineStart ? s - 2 :
+                                lineStart;
+                        }
+                    } else {
+                        codeTa.value = v.slice(0, s) + '  ' + v.slice(en);
+                        codeTa.selectionStart = codeTa.selectionEnd = s + 2;
+                    }
+                    highlight();
+                    if (activePath) { FS[activePath] = codeTa.value;
+                        saveFiles(); }
+                }
+            });
+            codeTa.addEventListener('input', () => { highlight(); if (activePath) { FS[activePath] = codeTa
+                        .value; } });
+            codeScroll.addEventListener('scroll', syncScroll);
+        }
+
+        function loadEditor() {
+            document.getElementById('editorStatus').textContent = activePath || '';
+            if (!activePath) {
+                welcomeEl.style.display = 'grid';
+                document.getElementById('codeArea').style.display = 'none';
+                return;
+            }
+            welcomeEl.style.display = 'none';
+            document.getElementById('codeArea').style.display = 'flex';
+            codeTa.value = FS[activePath] ?? '';
+            highlight();
+            codeTa.scrollTop = 0;
+            codeScroll.scrollTop = 0;
+        }
+
+        function saveCurrent() {
+            if (!activePath) return;
+            FS[activePath] = codeTa.value;
+            saveFiles();
+            toast('ذخیره شد: ' + activePath, 'ok');
+        }
+
+        // ===== Model Select =====
+        function populateModelSelects(selected) {
+            const models = getProviderModels(settings.provider);
+            const sel = document.getElementById('modelSelect');
+            const selSettings = document.getElementById('modelSelectSettings');
+            const current = selected || settings.model;
+            const opts = models.map(m => `<option value="${escapeAttr(m)}" ${m===current?'selected':''}>${escapeHtml(m)}</option>`)
+                .join('');
+            sel.innerHTML = opts;
+            selSettings.innerHTML = opts;
+            if (!models.includes(current)) {
+                sel.innerHTML += `<option value="${escapeAttr(current)}" selected>${escapeHtml(current)}</option>`;
+                selSettings.innerHTML +=
+                    `<option value="${escapeAttr(current)}" selected>${escapeHtml(current)}</option>`;
+            }
+            settings.model = current;
+        }
+
+        function renderModelSelect() { populateModelSelects(settings.model); }
+
+        // ===== Providers UI =====
+        function renderProviders() {
+            const el = document.getElementById('providers');
+            const all = getAllProviders();
+            let html = '';
+            for (const [key, val] of Object.entries(all)) {
+                const isCustom = key.startsWith('custom_');
+                html += `
+                    <div class="prov-card ${key===settings.provider?'sel':''}" data-prov="${key}">
+                      <div class="pn">${val.icon||'🔌'} ${val.name}</div>
+                      <div class="pd">${val.desc||'سفارشی'}</div>
+                      ${isCustom ? `<span class="del-prov" data-del="${key}" title="حذف">✕</span>` : ''}
+                    </div>`;
+            }
+            el.innerHTML = html;
+            el.querySelectorAll('.prov-card').forEach(c => {
+                c.addEventListener('click', e => {
+                    if (e.target.dataset.del) {
+                        e.stopPropagation();
+                        deleteProvider(e.target.dataset.del);
+                        return;
+                    }
+                    settings.provider = c.dataset.prov;
+                    const p = getProvider(settings.provider);
+                    if (p) {
+                        settings.baseUrl = p.baseUrl || settings.baseUrl;
+                        const models = p.models || [];
+                        if (models.length && !models.includes(settings.model)) settings.model = models[
+                            0] || 'mistral-medium-3-5';
+                        document.getElementById('baseUrlInput').value = settings.baseUrl;
+                        document.getElementById('getKeyLink').href = p.keyUrl || '#';
+                        populateModelSelects(settings.model);
+                        renderProviders();
+                    }
+                });
+            });
+            document.getElementById('getKeyLink').href = (getProvider(settings.provider)?.keyUrl) || '#';
+        }
+
+        // ===== Add Provider Modal =====
+        function openAddProvider() {
+            document.getElementById('newProviderName').value = '';
+            document.getElementById('newProviderBaseUrl').value = '';
+            document.getElementById('newProviderApiKey').value = '';
+            document.getElementById('newProviderModels').value = '';
+            document.getElementById('addProviderOverlay').classList.add('show');
+        }
+
+        function closeAddProvider() {
+            document.getElementById('addProviderOverlay').classList.remove('show');
+        }
+
+        function saveAddProvider() {
+            const name = document.getElementById('newProviderName').value.trim();
+            const baseUrl = document.getElementById('newProviderBaseUrl').value.trim().replace(/\/+$/, '');
+            const apiKey = document.getElementById('newProviderApiKey').value.trim();
+            const modelsStr = document.getElementById('newProviderModels').value.trim();
+
+            if (!name) { toast('لطفاً نام provider را وارد کنید', 'err'); return; }
+            if (!baseUrl) { toast('لطفاً Base URL را وارد کنید', 'err'); return; }
+
+            const id = 'custom_' + Date.now() + '_' + name.replace(/\s/g, '_').toLowerCase();
+            const models = modelsStr ? modelsStr.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+            customProviders[id] = {
+                name: name,
+                icon: '🔌',
+                baseUrl: baseUrl,
+                keyUrl: '',
+                models: models.length ? models : ['mistral-medium-3-5'],
+                desc: 'سفارشی'
+            };
+            saveCustomProviders();
+
+            if (apiKey) settings.apiKey = apiKey;
+
+            settings.provider = id;
+            settings.baseUrl = baseUrl;
+            if (models.length) settings.model = models[0] || 'mistral-medium-3-5';
+
+            document.getElementById('baseUrlInput').value = baseUrl;
+            document.getElementById('apiKeyInput').value = apiKey || settings.apiKey;
+            populateModelSelects(settings.model);
+            renderProviders();
+            renderModelSelect();
+            saveSettings();
+            closeAddProvider();
+            toast('Provider اضافه شد ✅', 'ok');
+        }
+
+        // ===== Fetch Models =====
+        async function fetchModels() {
+            const base = document.getElementById('baseUrlInput').value.trim().replace(/\/+$/, '');
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if (!base || !key) { toast('Base URL و API Key را وارد کن', 'err'); return; }
+            try {
+                const res = await fetch(proxied(base + '/models'), { headers: { 'Authorization': 'Bearer ' + key } });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                const ids = (data.data || data || []).map(m => m.id || m).filter(Boolean);
+                if (!ids.length) { toast('مدلی یافت نشد', 'err'); return; }
+                if (settings.provider.startsWith('custom_') || settings.provider === 'nara') {
+                    const all = getAllProviders();
+                    if (all[settings.provider]) {
+                        all[settings.provider].models = ids;
+                        if (settings.provider.startsWith('custom_')) {
+                            customProviders[settings.provider].models = ids;
+                            saveCustomProviders();
+                        }
+                    }
+                }
+                populateModelSelects(ids[0]);
+                settings.model = ids[0];
+                toast(ids.length + ' مدل پیدا شد ✅', 'ok');
+            } catch (e) { toast('خطا در دریافت مدل‌ها: ' + e.message, 'err'); }
+        }
+
+        // ===== Connection status =====
+        function setConn(state) {
+            const d = document.getElementById('connDot');
+            d.className = 'dot' + (state === 'ok' ? ' ok' : state === 'err' ? ' err' : '');
+        }
+
+        // ===== Settings modal =====
+        function openSettings() {
+            settingsBackup = { ...settings };
+            renderProviders();
+            document.getElementById('apiKeyInput').value = settings.apiKey;
+            document.getElementById('baseUrlInput').value = settings.baseUrl;
+            document.getElementById('systemPromptInput').value = settings.systemPrompt;
+            document.getElementById('proxyModeSelect').value = settings.proxyMode || 'none';
+            populateModelSelects(settings.model);
+            document.getElementById('settingsOverlay').classList.add('show');
+            updateProxyHelp();
+        }
+
+        function closeSettings() { document.getElementById('settingsOverlay').classList.remove('show'); }
+
+        function cancelSettings() {
+            if (settingsBackup) settings = { ...settingsBackup };
+            closeSettings();
+        }
+
+        function updateProxyHelp() {
+            const mode = document.getElementById('proxyModeSelect').value;
+            const help = document.getElementById('proxyHelp');
+            if (mode === 'none') help.innerHTML =
+                '<b>توصیه:</b> اگر از <code>http://localhost:8000</code> استفاده می‌کنید و مرورگرتان با پروکسی SOCKS5 اجرا می‌شود، این گزینه مناسب است.';
+            else if (mode === 'local') help.innerHTML =
+                '<b>پروکسی محلی:</b> <code>proxy.py</code> یا <code>proxy.js</code> را اجرا کنید و این گزینه را انتخاب کنید.';
+            else help.innerHTML =
+                '<b>⚠️ هشدار امنیتی:</b> پروکسی‌های عمومی کلید API شما را در معرض دید شخص ثالث قرار می‌دهند. فقط برای تست استفاده کنید.';
+        }
+
+        function applySettings() {
+            settings.apiKey = document.getElementById('apiKeyInput').value.trim();
+            settings.baseUrl = document.getElementById('baseUrlInput').value.trim().replace(/\/+$/, '');
+            settings.model = document.getElementById('modelSelectSettings').value || settings.model;
+            settings.systemPrompt = document.getElementById('systemPromptInput').value.trim();
+            settings.proxyMode = document.getElementById('proxyModeSelect').value;
+            saveSettings();
+            renderModelSelect();
+            setConn(settings.apiKey ? 'ok' : '');
+            closeSettings();
+            toast('تنظیمات ذخیره شد', 'ok');
+        }
+
+        // ===== Chat =====
+        const messagesEl = document.getElementById('messages');
+
+        function renderMessages() {
+            messagesEl.innerHTML = '';
+            chatHistory.forEach(m => appendMessageEl(m.role, m.content, false));
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        function appendMessageEl(role, content, animate) {
+            const wrap = document.createElement('div');
+            wrap.className = 'msg ' + (role === 'error' ? 'error' : role);
+            const whoMap = { user: '🧑 تو', assistant: '🤖 ایجنت', error: '⚠️ خطا' };
+            const who = whoMap[role] || '🤖 ایجنت';
+            wrap.innerHTML = `<div class="who">${who}</div><div class="bubble"></div>`;
+            messagesEl.appendChild(wrap);
+            const bubble = wrap.querySelector('.bubble');
+            if (animate) bubble.innerHTML = `<span class="typing"><span></span><span></span><span></span></span>`;
+            else renderMessageContent(bubble, content);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+            return bubble;
+        }
+
+        function renderMessageContent(bubble, raw) {
+            const fileRe = /```file:([^\n`]+)\n([\s\S]*?)```/g;
+            let html = '',
+                last = 0,
+                m,
+                applied = [];
+            while ((m = fileRe.exec(raw)) !== null) {
+                const before = raw.slice(last, m.index);
+                if (before.trim()) html += marked.parse(before);
+                const path = m[1].trim(),
+                    content = m[2];
+                applyFileToFS(path, content);
+                applied.push(path);
+                html += `<div class="file-card"><span class="fc-ic">✅</span><span class="fc-nm" title="${escapeAttr(path)}">${escapeHtml(path)}</span><span class="fc-ok">ذخیره شد</span></div>`;
+                last = fileRe.lastIndex;
+            }
+            const tail = raw.slice(last);
+            if (tail.trim()) html += marked.parse(tail);
+            if (!html) html = marked.parse(raw);
+            const cleanHTML = sanitizeHTML(html);
+            bubble.innerHTML = cleanHTML;
+            if (applied.length) { saveFiles();
+                renderFiles();
+                openFile(applied[applied.length - 1]); }
+            bubble.querySelectorAll('pre code').forEach(block => {
+                if (window.Prism) {
+                    try { Prism.highlightElement(block); } catch (e) {}
+                }
+            });
+        }
+
+        function applyFileToFS(path, content) { FS[path] = content.replace(/\n$/, ''); }
+
+        function buildContext() {
+            const tree = Object.keys(FS).map(p => `  - ${p}`).join('\n') || '  (خالی)';
+            let ctx = `سیستم‌فایل فعلی کداسپیس:\n${tree}`;
+            if (activePath) {
+                const c = (FS[activePath] || '').slice(0, 6000);
+                ctx += `\n\nفایل فعال (${activePath}):\n\`\`\`\n${c}\n\`\`\``;
+            }
+            return ctx;
+        }
+
+        const DEFAULT_SYS = `تو یک ایجنت کدنویسی به نام Codespace Agent هستی که داخل یک محیط کدنویسی مرورگری کار می‌کند.
+        کار تو کمک به کاربر برای ساخت، ویرایش و دیباگ کد است.
+
+        قابلیت ساخت/ویرایش فایل:
+        برای ایجاد یا ویرایش یک فایل، یک بلوک کد با زبان "file" و سپس مسیر فایل خروجی بده:
+        \`\`\`file:index.html
+        <!doctype html>
+        ...محتوای کامل فایل...
+        \`\`\`
+        میزبان به‌طور خودکار فایل را در سیستم‌فایل می‌نویسد و در ادیتور باز می‌کند.
+        می‌توانی چند فایل را در یک پاسخ بسازی.
+
+        قوانین:
+        - همیشه برای ساخت/ویرایش فایل از فرمت \`\`\`file:PATH استفاده کن.
+        - توضیحات را کوتاه و به زبان کاربر (فارسی) بده.
+        - برای ویرایش فایل، نام همان فایل را بنویس؛ محتوا جایگزین می‌شود.
+        - برای پروژه‌های HTML یک index.html بساز؛ ارجاع به فایل‌های محلی .css/.js هنگام پیش‌نمایش از سیستم‌فایل حل می‌شود.`;
+
+        function stripFileBlocksForPreview(s) {
+            return s.replace(/```file:[^\n`]+\n[\s\S]*?```/g, '\n_(در حال نوشتن فایل...)_\n');
+        }
+
+        function getErrorHint(err) {
+            const msg = err.message || '';
+            if (msg.includes('CORS') || msg.includes('blocked') || msg.includes('preflight')) {
+                return '💡 مشکل CORS: روی فایل محلی هستی؟ پروکسی را در تنظیمات فعال کن.';
+            }
+            if (msg.includes('401') || msg.includes('403') || msg.includes('API key') || msg.includes('unauthorized')) {
+                return '💡 کلید API نامعتبر است. از provider خود کلید جدید بگیر.';
+            }
+            if (msg.includes('not_found') || msg.includes('model does not exist')) {
+                return '💡 مدل انتخاب‌شده وجود ندارد. از دکمه «دریافت مدل‌ها» استفاده کن یا مدل دیگری انتخاب کن.';
+            }
+            if (msg.includes('404')) return '💡 مسیر API اشتباه است. Base URL را بررسی کن.';
+            if (msg.includes('ECONNREFUSED') || msg.includes('Failed to fetch') || msg.includes('ERR_CONNECTION_RESET')) {
+                return '💡 اتصال به سرور ممکن نیست. اینترنت یا پروکسی خود را بررسی کن.';
+            }
+            return 'برای راهنمایی بیشتر، تنظیمات را بررسی کن.';
+        }
+
+        function setBtnSending(s) {
+            document.getElementById('btnSend').disabled = s;
+            document.getElementById('btnSend').innerHTML = s ?
+                `<span class="typing"><span></span><span></span><span></span></span>` :
+                `ارسال <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>`;
+        }
+
+        async function sendMessage() {
+            if (isStreaming) return;
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            if (!settings.apiKey) {
+                toast('لطفاً کلید API را در تنظیمات وارد کنید', 'err');
+                openSettings();
+                return;
+            }
+            if (isFileOrigin() && settings.proxyMode === 'none') {
+                toast('⚠️ روی فایل محلی هستی! در تنظیمات، پروکسی را فعال کن', 'warn');
+                openSettings();
+                return;
+            }
+
+            input.value = '';
+            chatHistory.push({ role: 'user', content: text });
+            saveChat();
+            appendMessageEl('user', text, false);
+
+            const bubble = appendMessageEl('assistant', '', true);
+            isStreaming = true;
+            setBtnSending(true);
+
+            const sys = (settings.systemPrompt ? settings.systemPrompt + '\n\n' : '') + DEFAULT_SYS + '\n\n' +
+                buildContext();
+            const recentMessages = chatHistory.slice(-MAX_CONTEXT_MESSAGES);
+            const msgs = [{ role: 'system', content: sys }, ...recentMessages];
+
+            let acc = '';
+            try {
+                await streamChat(msgs, settings.baseUrl, settings.apiKey, settings.model,
+                    (delta) => {
+                        acc += delta;
+                        const cleanPartial = sanitizeHTML(marked.parse(stripFileBlocksForPreview(acc)));
+                        bubble.innerHTML = cleanPartial +
+                            `<div class="typing"><span></span><span></span><span></span></div>`;
+                        messagesEl.scrollTop = messagesEl.scrollHeight;
+                    },
+                    () => {}
+                );
+                chatHistory.push({ role: 'assistant', content: acc });
+                saveChat();
+                renderMessageContent(bubble, acc);
+            } catch (e) {
+                const errMsg = e.message || 'خطای ناشناخته';
+                bubble.innerHTML =
+                    `<span style="color:var(--red)">⚠️ ${escapeHtml(errMsg)}</span><br><small style="color:var(--muted)">${getErrorHint(e)}</small>`;
+                chatHistory.push({ role: 'assistant', content: '⚠️ خطا: ' + errMsg });
+                saveChat();
+                toast('خطا: ' + errMsg, 'err');
+            } finally {
+                isStreaming = false;
+                setBtnSending(false);
+            }
+        }
+
+        async function streamChat(messages, baseUrl, apiKey, model, onToken, onDone) {
+            const ctrl = new AbortController();
+            const url = proxied(baseUrl.replace(/\/+$/, '') + '/chat/completions');
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+                body: JSON.stringify({ model, messages, stream: true, temperature: 0.7 }),
+                signal: ctrl.signal
+            });
+            if (!res.ok) {
+                let detail = '';
+                try { const j = await res.json();
+                    detail = j.error?.message || JSON.stringify(j).slice(0, 200); } catch (e) { detail = await res
+                        .text().catch(() => ''); }
+                throw new Error(`HTTP ${res.status} — ${detail || res.statusText}`);
+            }
+            if (!res.body) {
+                const data = await res.json();
+                const c = data.choices?.[0]?.message?.content || '';
+                onToken(c);
+                onDone();
+                return;
+            }
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let buf = '';
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                buf += decoder.decode(value, { stream: true });
+                const lines = buf.split('\n');
+                buf = lines.pop();
+                for (const line of lines) {
+                    const t = line.trim();
+                    if (!t.startsWith('data:')) continue;
+                    const data = t.slice(5).trim();
+                    if (data === '[DONE]') { onDone(); return; }
+                    try { const j = JSON.parse(data);
+                        const delta = j.choices?.[0]?.delta?.content; if (delta) onToken(delta); } catch (e) {}
+                }
+            }
+            onDone();
+        }
+
+        // ===== Preview =====
+        function resolveAssetRefs(html) {
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                // Link tags
+                doc.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href && !/^https?:|^\/\//.test(href) && FS[href]) {
+                        const style = doc.createElement('style');
+                        style.textContent = FS[href];
+                        link.parentNode.replaceChild(style, link);
+                    }
+                });
+                // Script tags with src
+                doc.querySelectorAll('script[src]').forEach(script => {
+                    const src = script.getAttribute('src');
+                    if (src && !/^https?:|^\/\//.test(src) && FS[src]) {
+                        const newScript = doc.createElement('script');
+                        newScript.textContent = FS[src];
+                        script.parentNode.replaceChild(newScript, script);
+                    }
+                });
+                return doc.documentElement.outerHTML;
+            } catch (e) {
+                // fallback to regex if DOM parsing fails
+                console.warn('resolveAssetRefs fallback to regex', e);
+                return html
+                    .replace(/<link[^>]*href=["']([^"']+)["'][^>]*>/gi, (tag, href) => {
+                        if (/^https?:|^\/\//.test(href) || !FS[href]) return tag;
+                        return `<style>\n${FS[href]}\n</style>`;
+                    })
+                    .replace(/<script[^>]*src=["']([^"']+)["'][^>]*>\s*<\/script>/gi, (tag, src) => {
+                        if (/^https?:|^\/\//.test(src) || !FS[src]) return tag;
+                        return `<script>\n${FS[src]}\n<\/script>`;
+                    });
+            }
+        }
+
+        const CONSOLE_HOOK = `
+        <script>
+        (function(){
+          function send(type,args){
+            try{ parent.postMessage({__csa:true,type:type,msg:Array.from(args).map(a=>{
+              try{return typeof a==='object'?JSON.stringify(a):String(a)}catch(e){return String(a)}
+            }).join(' ')},'*'); }catch(e){}
+          }
+          ['log','info','warn','error'].forEach(function(fn){
+            var orig = console[fn];
+            console[fn] = function(){ send(fn,arguments); orig.apply(console,arguments); };
+          });
+          window.addEventListener('error',function(e){ send('error',[e.message]); });
+        })();
+        <\/script>`;
+
+        function previewHTML(path) {
+            path = path || activePath;
+            const html = FS[path] ?? '';
+            if (!path) { toast('فایلی باز نیست', 'err'); return; }
+            const final = resolveAssetRefs(html).replace(/<\/head>/i, CONSOLE_HOOK + '</head>');
+            document.getElementById('prevTitle').textContent = path;
+            document.getElementById('prevConsole').innerHTML = '';
+            const frame = document.getElementById('prevFrame');
+            frame.srcdoc = final;
+            document.getElementById('prevOverlay').classList.add('show');
+        }
+
+        function runJS(path) {
+            path = path || activePath || Object.keys(FS).find(p => p.endsWith('.js'));
+            if (!path) { toast('فایل JS نیست', 'err'); return; }
+            const code = FS[path] || '';
+            const doc =
+                `<!doctype html><html><head><meta charset="utf-8"></head><body>${
+            CONSOLE_HOOK}<script>\ntry{\n${code}\n}catch(e){ console.error(e.message); }\n<\/script></body></html>`;
+            document.getElementById('prevTitle').textContent = '▶ ' + path;
+            document.getElementById('prevConsole').innerHTML = '';
+            document.getElementById('prevFrame').srcdoc = doc;
+            document.getElementById('prevOverlay').classList.add('show');
+        }
+
+        window.addEventListener('message', e => {
+            if (!e.data || !e.data.__csa) return;
+            const co = document.getElementById('prevConsole');
+            const cls = { log: 'log', info: 'info', warn: 'warn', error: 'err' } [e.data.type] || 'log';
+            co.innerHTML += `<div class="log-line ${cls}">${escapeHtml(e.data.msg)}</div>`;
+            co.scrollTop = co.scrollHeight;
+        });
+
+        // ===== Toast =====
+        function toast(msg, type) {
+            const t = document.createElement('div');
+            t.className = 'toast ' + (type || '');
+            t.textContent = msg;
+            document.getElementById('toasts').appendChild(t);
+            setTimeout(() => { t.style.opacity = '0';
+                t.style.transition = '.3s';
+                setTimeout(() => t.remove(), 300); }, 3000);
+        }
+
+        // ===== Bind events =====
+        function bind() {
+            document.getElementById('btnSettings').onclick = openSettings;
+            document.getElementById('closeSettings').onclick = closeSettings;
+            document.getElementById('cancelSettings').onclick = cancelSettings;
+            document.getElementById('saveSettings').onclick = applySettings;
+            document.getElementById('btnFetchModels').onclick = fetchModels;
+            document.getElementById('btnNewFile').onclick = newFile;
+            document.getElementById('btnReset').onclick = resetProject;
+            document.getElementById('btnSave').onclick = saveCurrent;
+            document.getElementById('btnPreview').onclick = () => previewHTML();
+            document.getElementById('btnRun').onclick = () => runJS();
+            document.getElementById('btnClearChat').onclick = () => { if (confirm('پاک کردن گفتگو؟')) { chatHistory = [];
+                    saveChat();
+                    renderMessages(); } };
+            document.getElementById('closePrev').onclick = () => document.getElementById('prevOverlay').classList.remove(
+                'show');
+            document.getElementById('btnReloadPrev').onclick = () => { const f = document.getElementById('prevFrame');
+                const s = f.srcdoc;
+                f.srcdoc = '';
+                f.srcdoc = s; };
+            document.getElementById('btnOpenTab').onclick = () => {
+                const html = resolveAssetRefs(FS[activePath] || '').replace(/<\/head>/i, CONSOLE_HOOK + '</head>');
+                const blob = new Blob([html], { type: 'text/html' });
+                window.open(URL.createObjectURL(blob), '_blank');
+            };
+
+            document.getElementById('modelSelect').onchange = e => {
+                settings.model = e.target.value;
+                populateModelSelects(settings.model);
+                saveSettings();
+            };
+            document.getElementById('modelSelectSettings').onchange = e => {
+                settings.model = e.target.value;
+                populateModelSelects(settings.model);
+                saveSettings();
+            };
+
+            document.getElementById('proxyModeSelect').onchange = updateProxyHelp;
+
+            document.getElementById('btnAddProvider').onclick = openAddProvider;
+            document.getElementById('closeAddProvider').onclick = closeAddProvider;
+            document.getElementById('cancelAddProvider').onclick = closeAddProvider;
+            document.getElementById('saveAddProvider').onclick = saveAddProvider;
+
+            document.addEventListener('keydown', e => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault();
+                    saveCurrent(); }
+            });
+
+            document.getElementById('btnFiles').onclick = () => { document.getElementById('filesPane').classList.toggle(
+                    'hidden'); };
+            document.getElementById('btnAgent').onclick = () => { document.getElementById('agentPane').classList.toggle(
+                    'hidden'); };
+
+            document.getElementById('btnSend').onclick = sendMessage;
+            const ci = document.getElementById('chatInput');
+            ci.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault();
+                    sendMessage(); } });
+        }
+
+        // ===== Boot =====
+        function boot() {
+            load();
+            bind();
+            renderFiles();
+            if (Object.keys(FS).length) { openTabs = ['index.html'];
+                activePath = 'index.html'; }
+            renderTabs();
+            renderModelSelect();
+            renderProviders();
+            setConn(settings.apiKey ? 'ok' : '');
+            renderMessages();
+            initEditor();
+            loadEditor();
+
+            if (isFileOrigin() && settings.proxyMode === 'none') {
+                setTimeout(() => toast('⚠️ روی فایل محلی هستی! در تنظیمات، پروکسی را فعال کن', 'warn'), 500);
+            }
+            if (!settings.apiKey) {
+                setTimeout(() => { toast('برای شروع، کلید API را در تنظیمات وارد کنید', 'warn'); }, 600);
+            } else {
+                const models = getProviderModels(settings.provider);
+                if (models.length && !models.includes(settings.model)) {
+                    toast('⚠️ مدل انتخاب‌شده در لیست ارائه‌دهنده نیست. ممکن است کار نکند.', 'warn');
+                }
+            }
+        }
+
+        boot();
+    </script>
+</body>
+</html>
