@@ -53,14 +53,15 @@ goto continue
 :continue
 
 :: Optional SOCKS5
+set "SOCKS_PORT=12334"
 set "USE_SOCKS=0"
 if "%START_MODE%"=="full" (
     echo.
     set /p "USE_SOCKS_CHOICE=Use SOCKS5 proxy? (for VPN) [y/N]: "
     if /i "%USE_SOCKS_CHOICE%"=="y" (
         set "USE_SOCKS=1"
-        set /p "SOCKS_ADDR=SOCKS5 address (e.g., 127.0.0.1:1080): "
-        if "%SOCKS_ADDR%"=="" set "SOCKS_ADDR=127.0.0.1:1080"
+        set /p "SOCKS_ADDR=SOCKS5 address (e.g., 127.0.0.1:12334): "
+        if "%SOCKS_ADDR%"=="" set "SOCKS_ADDR=127.0.0.1:12334"
     )
 )
 
@@ -119,11 +120,11 @@ if exist "%CD%\proxy.py" (
     echo [WARN] proxy.py not found - proxy will not be available.
 )
 
-if exist "%CD%\proxy.js" (
-    copy /y "%CD%\proxy.js" "%INSTALL_DIR%\proxy.js" >nul
-    echo [OK] Copied proxy.js
+if exist "%CD%\server.py" (
+    copy /y "%CD%\server.py" "%INSTALL_DIR%\server.py" >nul
+    echo [OK] Copied server.py
 ) else (
-    echo [WARN] proxy.js not found - proxy will not be available.
+    echo [WARN] server.py not found - API won't work
 )
 
 :: Create start.bat
@@ -135,10 +136,14 @@ echo title Codespace Agent
 echo cd /d "%%~dp0"
 echo echo Starting Codespace Agent...
 echo echo.
-echo start "CORS Proxy" /B python proxy.py --port %PROXY_PORT%
-echo start "HTTP Server" /B python -m http.server %HTTP_PORT%
+echo set PORT=%HTTP_PORT%
+echo set PROXY_PORT=%PROXY_PORT%
+echo set SOCKS_HOST=%SOCKS_HOST%
+echo set SOCKS_PORT=%SOCKS_PORT%
+echo start "CORS Proxy" /B python proxy.py --port %PROXY_PORT% --socks-host %SOCKS_HOST% --socks-port %SOCKS_PORT%
+echo start "CodeAgent" /B python server.py --port %HTTP_PORT%
 echo timeout /t 2 /nobreak ^>nul
-echo start http://localhost:%HTTP_PORT%/%HTML_FILE%
+echo start http://localhost:%HTTP_PORT%/%%HTML_FILE%%
 echo echo.
 echo echo Servers running. Close this window to stop.
 echo pause ^>nul
@@ -150,7 +155,7 @@ echo [OK] Created start.bat
 echo @echo off
 echo echo Stopping...
 echo taskkill /fi "WindowTitle eq CORS Proxy*" /f >nul 2>&1
-echo taskkill /fi "WindowTitle eq HTTP Server*" /f >nul 2>&1
+echo taskkill /fi "WindowTitle eq CodeAgent*" /f >nul 2>&1
 echo taskkill /fi "WindowTitle eq Codespace Agent*" /f >nul 2>&1
 echo echo Done.
 echo pause
@@ -176,6 +181,12 @@ if %USE_SOCKS%==1 (
     "%PYTHON_CMD%" -m pip install pysocks --quiet 2>nul
     if %errorlevel%==0 ( echo [OK] pysocks installed ) else ( echo [WARN] pysocks install failed )
 )
+:: Parse SOCKS_ADDR into host:port
+for /f "tokens=1,2 delims=:" %%a in ("%SOCKS_ADDR%") do (
+    set "SOCKS_HOST=%%a"
+    set "SOCKS_PORT=%%b"
+)
+if "%SOCKS_PORT%"=="" set "SOCKS_PORT=12334"
 
 :: Start services (if full mode)
 if "%START_MODE%"=="filesonly" goto filesonly_done
@@ -187,7 +198,7 @@ cd /d "%INSTALL_DIR%"
 :: Start proxy (if proxy.py exists)
 if exist "%INSTALL_DIR%\proxy.py" (
     echo Starting CORS proxy on port %PROXY_PORT%...
-    start "CORS Proxy" /B python proxy.py --port %PROXY_PORT%
+start "CORS Proxy" /B python proxy.py --port %PROXY_PORT% --socks-host %SOCKS_HOST% --socks-port %SOCKS_PORT%
     timeout /t 2 /nobreak >nul
     echo [OK] Proxy started
 ) else (
@@ -196,7 +207,7 @@ if exist "%INSTALL_DIR%\proxy.py" (
 
 :: Start HTTP server
 echo Starting HTTP server on port %HTTP_PORT%...
-start "HTTP Server" /B python -m http.server %HTTP_PORT%
+start "CodeAgent" /B python server.py --port %HTTP_PORT%
 timeout /t 2 /nobreak >nul
 echo [OK] Server started
 

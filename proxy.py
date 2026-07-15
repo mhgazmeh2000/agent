@@ -1,97 +1,154 @@
 #!/usr/bin/env python3
+"""
+CORS Proxy + SOCKS5 Tunnel (Hiddify)
+=====================================
+درخواست HTTP از مرورگر میاد → CORS headers اضافه میشه
+→ از طریق SOCKS5 (Hiddify:127.0.0.1:12334) به API مقصد فوروارد میشه
+
+این نسخه با مانکی‌پچ کردن socket.create_connection کار میکنه
+یعنی تمام http.client خودکار از SOCKS5 رد میشن.
+"""
+
 import http.server
 import socketserver
 import urllib.parse
 import http.client
 import socket
 import socks
-import threading
+import ssl
+import sys
 
-SOCKS_HOST = '127.0.0.1'
-SOCKS_PORT = 12334
-PROXY_PORT = 8787
+# ===== تنظیمات =====
+SOCKS_HOST = sys.argv[sys.argv.index('--socks-host') + 1] if '--socks-host' in sys.argv else os.environ.get('SOCKS_HOST', '127.0.0.1')
+SOCKS_PORT = int(sys.argv[sys.argv.index('--socks-port') + 1]) if '--socks-port' in sys.argv else int(os.environ.get('SOCKS_PORT', '12334'))
+PROXY_PORT = int(sys.argv[sys.argv.index('--port') + 1]) if '--port' in sys.argv else int(os.environ.get('PROXY_PORT', '8787'))
+TIMEOUT = 60
 
-def create_socks_connection(address, timeout=30):
-    sock = socks.socksocket()
-    sock.set_proxy(socks.SOCKS5, SOCKS_HOST, SOCKS_PORT)
-    sock.settimeout(timeout)
-    sock.connect(address)
-    return sock
+# ===== مانکی‌پچ: تمام کانکشن‌ها از SOCKS5 رد بشن =====
+socks.set_default_proxy(socks.SOCKS5, SOCKS_HOST, SOCKS_PORT)
+socks.wrap_module(socket)
+
+# ===== CORS Headers =====
+CORS_HEADERS = [
+    ('Access-Control-Allow-Origin', '*'),
+    ('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH'),
+    ('Access-Control-Allow-Headers', 'Content-Type,Authorization,Accept,X-Requested-With'),
+    ('Access-Control-Expose-Headers', '*'),
+    ('Access-Control-Max-Age', '86400'),
+]
+
+
+def forward_headers(headers_dict):
+    """فقط هدرهای مفید رو فوروارد کن"""
+    allowed = {'content-type', 'authorization', 'accept', 'x-requested-with'}
+    return {k: v for k, v in headers_dict.items() if k.lower() in allowed}
+
+
+def do_request(method, url, headers, body):
+    """
+    ارسال درخواست به مقصد از طریق SOCKS5
+    برمیگردونه: (status_code, response_headers, body_bytes)
+    """
+    parsed = urllib.parse.urlparse(url)
+    hostname = parsed.hostname
+    port = parsed.port or (443 if parsed.scheme == 'https' else 80)
+    path = parsed.path or '/'
+    if parsed.query:
+        path += '?' + parsed.query
+
+    fwd = forward_headers(headers)
+    if body and 'content-type' in headers:
+        fwd['Content-Type'] = headers['content-type']
+    if body:
+        fwd['Content-Length'] = str(len(body))
+
+    conn = http.client.HTTPSConnection(hostname, port, timeout=TIMEOUT) \
+        if parsed.scheme == 'https' \
+        else http.client.HTTPConnection(hostname, port, timeout=TIMEOUT)
+
+    try:
+        conn.request(method, path, body=body or None, headers=fwd)
+        resp = conn.getresponse()
+        status = resp.status
+        resp_headers = [(k, v) for k, v in resp.getheaders()
+                        if k.lower() in ('content-type', 'cache-control', 'content-length')]
+        resp_body = resp.read()
+        return (status, resp_headers, resp_body)
+    finally:
+        conn.close()
+
 
 class ProxyHandler(http.server.BaseHTTPRequestHandler):
-    def do_GET(self): self._handle('GET')
-    def do_POST(self): self._handle('POST')
-    def do_PUT(self): self._handle('PUT')
-    def do_DELETE(self): self._handle('DELETE')
-    def do_OPTIONS(self): self._send_response(200, [])
+    """هندلر پروکسی CORS"""
 
-    def _send_response(self, status, headers, body=b''):
+    def do_OPTIONS(self):
+        self._send_cors(204)
+
+    def do_GET(self):
+        self._handle('GET')
+
+    def do_POST(self):
+        self._handle('POST')
+
+    def do_PUT(self):
+        self._handle('PUT')
+
+    def do_DELETE(self):
+        self._handle('DELETE')
+
+    def _send_cors(self, status, extra_headers=None, body=b''):
         self.send_response(status)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Accept')
-        self.send_header('Access-Control-Expose-Headers', '*')
-        for k, v in headers:
+        for k, v in CORS_HEADERS:
             self.send_header(k, v)
+        if extra_headers:
+            for k, v in extra_headers:
+                self.send_header(k, v)
+        if body:
+            self.send_header('Content-Length', str(len(body)))
         self.end_headers()
-        self.wfile.write(body)
+        if body:
+            self.wfile.write(body)
 
     def _handle(self, method):
         parsed = urllib.parse.urlparse(self.path)
-        target = urllib.parse.parse_qs(parsed.query).get('url', [None])[0]
+        params = urllib.parse.parse_qs(parsed.query)
+        target = params.get('url', [None])[0]
+
         if not target:
-            self._send_response(400, [], b'Missing ?url=')
+            self._send_cors(400, body=b'Missing ?url= parameter')
             return
 
         content_length = int(self.headers.get('Content-Length', 0))
-        body = self.rfile.read(content_length) if content_length > 0 else None
+        body = self.rfile.read(content_length) if content_length > 0 else b''
 
-        headers = {}
-        for k, v in self.headers.items():
-            if k.lower() in ('content-type', 'authorization', 'accept'):
-                headers[k] = v
+        try:
+            status, resp_headers, resp_body = do_request(
+                method, target, dict(self.headers), body
+            )
+            self._send_cors(status, resp_headers, resp_body)
+        except Exception as e:
+            msg = str(e).encode()
+            self._send_cors(502, body=b'Proxy Error: ' + msg)
 
-        parsed_target = urllib.parse.urlparse(target)
-        is_https = parsed_target.scheme == 'https'
-        port = parsed_target.port or (443 if is_https else 80)
+    def log_message(self, format, *args):
+        # لاگ خلاصه
+        sys.stderr.write(f"[proxy] {args[0]}\n")
 
-        conn = http.client.HTTPSConnection(parsed_target.hostname, port, timeout=30) if is_https else http.client.HTTPConnection(parsed_target.hostname, port, timeout=30)
-        # جایگزینی سوکت با سوکت SOCKS5
-        conn.sock = create_socks_connection((parsed_target.hostname, port), timeout=30)
-        conn.request(method, parsed_target.path or '/', body=body, headers=headers)
-        resp = conn.getresponse()
-
-        # ارسال پاسخ به صورت استریم (تکه‌تکه)
-        self.send_response(resp.status)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type,Authorization,Accept')
-        self.send_header('Access-Control-Expose-Headers', '*')
-        for k, v in resp.getheaders():
-            if k.lower() in ('content-type', 'cache-control'):
-                self.send_header(k, v)
-        self.end_headers()
-
-        while True:
-            chunk = resp.read(4096)
-            if not chunk:
-                break
-            self.wfile.write(chunk)
-        conn.close()
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     allow_reuse_address = True
+    daemon_threads = True
+
 
 if __name__ == '__main__':
-    try:
-        import socks
-    except ImportError:
-        print('PySocks not installed. Run: pip install pysocks')
-        exit(1)
+    print('=' * 55)
+    print('   Codespace Agent — CORS + SOCKS5 Proxy')
+    print(f'   CORS Proxy : http://127.0.0.1:{PROXY_PORT}')
+    print(f'   Tunnel     : SOCKS5 → {SOCKS_HOST}:{SOCKS_PORT} (Hiddify)')
+    print('   Ctrl+C to stop')
+    print('=' * 55)
 
     with ThreadedTCPServer(('127.0.0.1', PROXY_PORT), ProxyHandler) as httpd:
-        print(f'Proxy running on http://127.0.0.1:{PROXY_PORT} (SOCKS5 via {SOCKS_HOST}:{SOCKS_PORT})')
-        print('Streaming supported. Press Ctrl+C to stop.')
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
